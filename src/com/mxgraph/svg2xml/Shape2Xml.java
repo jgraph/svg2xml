@@ -18,14 +18,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.mxgraph.svgxml.mxPathProducer;
-import com.mxgraph.svgxml.mxPolylineProducer;
-import com.mxgraph.svgxml.svg.PointsParser;
+//import com.mxgraph.svg2xml.mxPolylineProducer;
+//import com.mxgraph.svg2xml.svg1.PointsParser;
 
 /**
  * Transforms a SVG shape element to a JGraph XML element or elements, if necessary
@@ -37,7 +35,6 @@ public class Shape2Xml
 	protected static double lastPathY=0; 
 	protected static double prevPathX=0; // where the last path part ended before transforming
 	protected static double prevPathY=0;
-
 	/**
 	 * Parses a SVG element to an stencil XML element
 	 * @param element SVG element that is to be parsed
@@ -48,7 +45,7 @@ public class Shape2Xml
 	public static Element parse(Element element, Document xmlDoc, XmlConfig configDoc)
 	{
 		double s = configDoc.getRelativeScalingRatio();
-
+		
 		if (element.getNodeName().equals("rect"))
 		{
 			if (element.getAttribute("transform") != null && !element.getAttribute("transform").equals(""))
@@ -120,7 +117,8 @@ public class Shape2Xml
 			pathString = matrixTransformPath(pathString, new Double[]{1.0, 0.0, 0.0, 1.0, -dx, -dy}, configDoc);
 			pathString = matrixTransformPath(pathString, new Double[]{s, 0.0, 0.0, s, 0.0, 0.0}, configDoc);
 
-			return returnXmlFragment(xmlDoc, mxPathProducer.createShape(pathString));
+			mxPathParser pp = new mxPathParser();
+			return pp.createShape(pathString, xmlDoc, configDoc.getDecimalsToRound());
 		}
 		else if (element.getNodeName().equals("polyline") || element.getNodeName().equals("polygon"))
 		{
@@ -180,20 +178,21 @@ public class Shape2Xml
 
 			newPointsString = newPointsString.substring(0, (newPointsString.length() - 1));
 			newPointsString = setPathRoot(newPointsString, configDoc);
-			String polyXML = "<path>" + System.getProperty("line.separator");
-			mxPolylineProducer ph = new mxPolylineProducer();
-			PointsParser p = new PointsParser(ph);
-			p.parse(newPointsString);
-			polyXML += ph.getLines();
+//			String polyXML = "<path>" + System.getProperty("line.separator");
+			//			mxPolylineProducer ph = new mxPolylineProducer();
+			//			PointsParser p = new PointsParser(ph);
+			//			p.parse(newPointsString, configDoc.getDecimalsToRound());
+			//			polyXML += ph.getLines();
 
-			if (element.getNodeName().equals("polygon"))
-			{
-				polyXML += "<close/>" + System.getProperty("line.separator");
-			}
-
-			polyXML += "</path>" + System.getProperty("line.separator");
-
-			return returnXmlFragment(xmlDoc, polyXML);
+//			if (element.getNodeName().equals("polygon"))
+//			{
+//				polyXML += "<close/>" + System.getProperty("line.separator");
+//			}
+//
+//			polyXML += "</path>" + System.getProperty("line.separator");
+			mxPolyParser pp = new mxPolyParser();
+			return pp.createShape(newPointsString, xmlDoc, dn, element.getNodeName());
+//			return returnXmlFragment(xmlDoc, polyXML);
 		}
 		else if (element.getNodeName().equals("circle") || element.getNodeName().equals("ellipse"))
 		{
@@ -243,18 +242,19 @@ public class Shape2Xml
 				double y4 = cy;
 
 				String ellString = "M " + x1 + " " + y1 + 
-				" A " + rx + " " + ry + " 0 0 1 " + x2 + " " + y2 + 
-				" A " + rx + " " + ry + " 0 0 1 " + x3 + " " + y3 + 
-				" A " + rx + " " + ry + " 0 0 1 " + x4 + " " + y4 + 
-				" A " + rx + " " + ry + " 0 0 1 " + x1 + " " + y1 + " Z ";
+						" A " + rx + " " + ry + " 0 0 1 " + x2 + " " + y2 + 
+						" A " + rx + " " + ry + " 0 0 1 " + x3 + " " + y3 + 
+						" A " + rx + " " + ry + " 0 0 1 " + x4 + " " + y4 + 
+						" A " + rx + " " + ry + " 0 0 1 " + x1 + " " + y1 + " Z ";
 
 				ellString = matrixTransformPath(ellString, tr, configDoc);
 				double dx = configDoc.getStencilBoundsMinX();
 				double dy = configDoc.getStencilBoundsMinY();
 				ellString = matrixTransformPath(ellString, new Double[]{1.0, 0.0, 0.0, 1.0, -dx, -dy}, configDoc);
 				ellString = matrixTransformPath(ellString, new Double[]{s, 0.0, 0.0, s, 0.0, 0.0}, configDoc);
+				mxPathParser pp = new mxPathParser();
+				return pp.createShape(ellString, xmlDoc, configDoc.getDecimalsToRound());
 
-				return returnXmlFragment(xmlDoc, mxPathProducer.createShape(ellString));
 			}
 			else
 			{
@@ -292,8 +292,8 @@ public class Shape2Xml
 			double dy = configDoc.getStencilBoundsMinY();
 			path = matrixTransformPath(path, new Double[]{1.0, 0.0, 0.0, 1.0, -dx, -dy}, configDoc);
 			path = matrixTransformPath(path, new Double[]{s, 0.0, 0.0, s, 0.0, 0.0}, configDoc);
-
-			return returnXmlFragment(xmlDoc, mxPathProducer.createShape(path));
+			mxPathParser pp = new mxPathParser();
+			return pp.createShape(path, xmlDoc, configDoc.getDecimalsToRound());
 		}
 
 		return null;
@@ -671,8 +671,6 @@ public class Shape2Xml
 			return element;
 		}
 
-		int decimalsNum = configDoc.getDecimalsToRound();
-
 		String pointsString = element.getAttribute("points");
 		String newPointsString = "";
 		double x = 0;
@@ -704,9 +702,6 @@ public class Shape2Xml
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 			// add the new coords to the new string
 
-			xNew = roundToDecimals(xNew, decimalsNum);
-			yNew = roundToDecimals(yNew, decimalsNum);
-
 			newPointsString += xNew + "," + yNew + " ";
 
 			pointsString = pointsString.substring(spaceIndex, pointsString.length());
@@ -737,7 +732,6 @@ public class Shape2Xml
 	private static Element matrixTransformRect(Element element, Document xmlDoc, XmlConfig configDoc)
 	{
 		Double[] tr = getTransform(element);
-
 		double x = getDoubleAttribute(element, "x");
 		double y = getDoubleAttribute(element, "y");
 		double w = getDoubleAttribute(element, "width");
@@ -758,15 +752,15 @@ public class Shape2Xml
 		{
 			//roundrect
 			pathString =  "M " + x1 + " " + (y1 + ry) + 
-			" v " + (h - 2 * ry) +
-			" a " + rx + " " + ry + " 0 0 0 " + rx + " " + ry +
-			" h " + (w - 2 * rx) +
-			" a " + rx + " " + ry + " 0 0 0 " + rx + " " + ( -ry) +
-			" v " + (2 * ry - h) + 
-			" a " + rx + " " + ry + " 0 0 0 " + ( -rx) + " " + ( -ry) +
-			" h " + (2 * rx - w) +
-			" a " + rx + " " + ry + " 0 0 0 " + ( -rx) + " " + ry +
-			" Z ";
+					" v " + (h - 2 * ry) +
+					" a " + rx + " " + ry + " 0 0 0 " + rx + " " + ry +
+					" h " + (w - 2 * rx) +
+					" a " + rx + " " + ry + " 0 0 0 " + rx + " " + ( -ry) +
+					" v " + (2 * ry - h) + 
+					" a " + rx + " " + ry + " 0 0 0 " + ( -rx) + " " + ( -ry) +
+					" h " + (2 * rx - w) +
+					" a " + rx + " " + ry + " 0 0 0 " + ( -rx) + " " + ry +
+					" Z ";
 		}
 
 		if (tr != null)
@@ -780,19 +774,27 @@ public class Shape2Xml
 		double s = configDoc.getRelativeScalingRatio();
 		pathString = matrixTransformPath(pathString, new Double[]{s, 0.0, 0.0, s, 0.0, 0.0}, configDoc);
 
-		return returnXmlFragment(xmlDoc, mxPathProducer.createShape(pathString));
+		mxPathParser pp = new mxPathParser();
+		return pp.createShape(pathString, xmlDoc, configDoc.getDecimalsToRound());
 	}
 
 	/**
 	 * @param d number to round
-	 * @param c decimals to round to
+	 * @param c decimals to round to (use values <0 if you want to skip rounding)
 	 * @return rounnded <b>d</b> to <b>c</b> decimals
 	 */
 	public static double roundToDecimals(double d, int c) 
 	{
-		BigDecimal temp = new BigDecimal(Double.toString(d));
-		temp = temp.setScale(c, RoundingMode.HALF_EVEN);
-		return temp.doubleValue();
+		if (c >= 0)
+		{
+			BigDecimal temp = new BigDecimal(Double.toString(d));
+			temp = temp.setScale(c, RoundingMode.HALF_EVEN);
+			return temp.doubleValue();
+		}
+		else
+		{
+			return d;
+		}
 	}
 
 	/**
@@ -843,36 +845,44 @@ public class Shape2Xml
 	 */
 	private static String matrixTransformPath(String pathString, Double[] tr, XmlConfig configDoc)
 	{
-		if (tr != null)
+		if (pathString != null)
 		{
 			pathString = pathString.replaceAll(System.getProperty("line.separator"), "");
 			pathString = pathString.replaceAll("\n", "");
 			pathString = pathString.replaceAll(" {2,}", " ");
-			String newPathString = "";
-			int nextPartStartIndex; 
 
-			do
+			if (tr != null)
 			{
-				// remove leading space
-				while (pathString.charAt(0)==' ')
+				String newPathString = "";
+				int nextPartStartIndex; 
+
+				do
 				{
-					pathString=pathString.substring(1, pathString.length());
-				}
+					// remove leading space
+					while (pathString.charAt(0)==' ')
+					{
+						pathString=pathString.substring(1, pathString.length());
+					}
 
-				nextPartStartIndex = nextPartIndex(pathString);
-				String currPathString = pathString.substring(0, nextPartStartIndex);
-				newPathString += parseMatrixTransformPathPart(currPathString, tr, configDoc);
-				pathString = pathString.substring(nextPartStartIndex, pathString.length());
-			} 
-			while (pathString.length() > 0);
+					nextPartStartIndex = nextPartIndex(pathString);
+					String currPathString = pathString.substring(0, nextPartStartIndex);
+					newPathString += parseMatrixTransformPathPart(currPathString, tr);
+					pathString = pathString.substring(nextPartStartIndex, pathString.length());
+				} 
+				while (pathString.length() > 0);
 
-			newPathString = newPathString.substring(0, (newPathString.length() - 1));
-			newPathString = setPathRoot(newPathString, configDoc);
-			return newPathString;
+				newPathString = newPathString.substring(0, (newPathString.length() - 1));
+				newPathString = setPathRoot(newPathString, configDoc);
+				return newPathString;
+			}
+			else
+			{
+				return pathString;
+			}
 		}
 		else
 		{
-			return pathString;
+			return null;
 		}
 	}
 
@@ -882,31 +892,31 @@ public class Shape2Xml
 	 * @param configDoc config doc of the target stencil XML
 	 * @return path part with applied transformation
 	 */
-	private static String parseMatrixTransformPathPart(String currPathString, Double[] tr, XmlConfig configDoc)
+	private static String parseMatrixTransformPathPart(String currPathString, Double[] tr)
 	{
 		char pathType = currPathString.charAt(0);
 		String newPath="error"; // if it doesn't get changes, the path type isn't recognized, so it's an error
 
 		switch (pathType)
 		{
-			case 'M' : return newPath = matrixTransformPathPartMove(currPathString, tr, true, configDoc);
-			case 'm' : return newPath = matrixTransformPathPartMove(currPathString, tr, false, configDoc);
-			case 'L' : return newPath = matrixTransformPathPartLine(currPathString, tr, true, configDoc);
-			case 'l' : return newPath = matrixTransformPathPartLine(currPathString, tr, false, configDoc);
-			case 'H' : return newPath = matrixTransformPathPartHorLine(currPathString, tr, true, configDoc);
-			case 'h' : return newPath = matrixTransformPathPartHorLine(currPathString, tr, false, configDoc);
-			case 'V' : return newPath = matrixTransformPathPartVerLine(currPathString, tr, true, configDoc);
-			case 'v' : return newPath = matrixTransformPathPartVerLine(currPathString, tr, false, configDoc);
-			case 'C' : return newPath = matrixTransformPathPartCurve(currPathString, tr, true, configDoc);
-			case 'c' : return newPath = matrixTransformPathPartCurve(currPathString, tr, false, configDoc);
-			case 'S' : return newPath = matrixTransformPathPartSmoothCurve(currPathString, tr, true, configDoc);
-			case 's' : return newPath = matrixTransformPathPartSmoothCurve(currPathString, tr, false, configDoc);
-			case 'Q' : return newPath = matrixTransformPathPartQuad(currPathString, tr, true, configDoc);
-			case 'q' : return newPath = matrixTransformPathPartQuad(currPathString, tr, false, configDoc);
-			case 'T' : return newPath = matrixTransformPathPartSmoothQuad(currPathString, tr, true, configDoc);
-			case 't' : return newPath = matrixTransformPathPartSmoothQuad(currPathString, tr, false, configDoc);
-			case 'A' : return newPath = matrixTransformPathPartArc(currPathString, tr, true, configDoc);
-			case 'a' : return newPath = matrixTransformPathPartArc(currPathString, tr, false, configDoc);
+			case 'M' : return newPath = matrixTransformPathPartMove(currPathString, tr, true);
+			case 'm' : return newPath = matrixTransformPathPartMove(currPathString, tr, false);
+			case 'L' : return newPath = matrixTransformPathPartLine(currPathString, tr, true);
+			case 'l' : return newPath = matrixTransformPathPartLine(currPathString, tr, false);
+			case 'H' : return newPath = matrixTransformPathPartHorLine(currPathString, tr, true);
+			case 'h' : return newPath = matrixTransformPathPartHorLine(currPathString, tr, false);
+			case 'V' : return newPath = matrixTransformPathPartVerLine(currPathString, tr, true);
+			case 'v' : return newPath = matrixTransformPathPartVerLine(currPathString, tr, false);
+			case 'C' : return newPath = matrixTransformPathPartCurve(currPathString, tr, true);
+			case 'c' : return newPath = matrixTransformPathPartCurve(currPathString, tr, false);
+			case 'S' : return newPath = matrixTransformPathPartSmoothCurve(currPathString, tr, true);
+			case 's' : return newPath = matrixTransformPathPartSmoothCurve(currPathString, tr, false);
+			case 'Q' : return newPath = matrixTransformPathPartQuad(currPathString, tr, true);
+			case 'q' : return newPath = matrixTransformPathPartQuad(currPathString, tr, false);
+			case 'T' : return newPath = matrixTransformPathPartSmoothQuad(currPathString, tr, true);
+			case 't' : return newPath = matrixTransformPathPartSmoothQuad(currPathString, tr, false);
+			case 'A' : return newPath = matrixTransformPathPartArc(currPathString, tr, true);
+			case 'a' : return newPath = matrixTransformPathPartArc(currPathString, tr, false);
 			case 'Z' : return "Z ";
 			case 'z' : return "z ";
 		}
@@ -922,7 +932,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartArc(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartArc(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double xScaleFactor = Math.sqrt((tr[0] * tr[0]) + (tr[2] * tr[2]));
 		double yScaleFactor = Math.sqrt((tr[1] * tr[1]) + (tr[3] * tr[3]));
@@ -958,12 +968,6 @@ public class Shape2Xml
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 
-			rx = roundToDecimals(rx, configDoc.getDecimalsToRound());
-			ry = roundToDecimals(ry, configDoc.getDecimalsToRound());
-			xRot = roundToDecimals(xRot, configDoc.getDecimalsToRound());
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
-
 			currPathString = "A " + rx + " " + ry + " " + xRot + " " + largeArc + " " + sweep + " " + xNew + " " + yNew + " ";
 
 			lastPathX = xNew;
@@ -981,12 +985,6 @@ public class Shape2Xml
 			double newRelX = newAbsX - lastPathX;
 			double newRelY = newAbsY - lastPathY;
 
-			rx = roundToDecimals(rx, configDoc.getDecimalsToRound());
-			ry = roundToDecimals(ry, configDoc.getDecimalsToRound());
-			xRot = roundToDecimals(xRot, configDoc.getDecimalsToRound());
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "a " + rx + " " + ry + " " + xRot + " " + largeArc + " " + sweep + " " + newRelX + " " + newRelY + " ";
 
 			lastPathX += newRelX;
@@ -997,7 +995,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartSmoothQuad(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartSmoothQuad(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double x = getPathParam(currPathString, 1);
 		double y = getPathParam(currPathString, 2);
@@ -1008,9 +1006,6 @@ public class Shape2Xml
 			prevPathY = y;
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
-
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "T " + " " + xNew + " " + yNew + " ";
 
@@ -1029,9 +1024,6 @@ public class Shape2Xml
 			double newRelX = newAbsX - lastPathX;
 			double newRelY = newAbsY - lastPathY;
 
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "t " + " " + newRelX + " " + newRelY + " ";
 
 			lastPathX += newRelX;
@@ -1041,7 +1033,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartQuad(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartQuad(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double x1 = getPathParam(currPathString, 1);
 		double y1 = getPathParam(currPathString, 2);
@@ -1056,11 +1048,6 @@ public class Shape2Xml
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 			double x1New = x1 * tr[0] + y1 * tr[2] + tr[4];
 			double y1New = x1 * tr[1] + y1 * tr[3] + tr[5];
-
-			x1New = roundToDecimals(x1New, configDoc.getDecimalsToRound());
-			y1New = roundToDecimals(y1New, configDoc.getDecimalsToRound());
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "Q " + x1New + " " + y1New + " " + xNew + " " + yNew + " ";
 
@@ -1086,11 +1073,6 @@ public class Shape2Xml
 			double newRelX1 = newAbsX1 - lastPathX;
 			double newRelY1 = newAbsY1 - lastPathY;
 
-			newRelX1 = roundToDecimals(newRelX1, configDoc.getDecimalsToRound());
-			newRelY1 = roundToDecimals(newRelY1, configDoc.getDecimalsToRound());
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "q " + newRelX1 + " " + newRelY1 + " " + newRelX + " " + newRelY + " ";
 
 			lastPathX += newRelX;
@@ -1101,7 +1083,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartSmoothCurve(String currPathString,	Double[] tr,	boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartSmoothCurve(String currPathString,	Double[] tr, boolean isAbs)
 	{
 		double x2 = getPathParam(currPathString, 1);
 		double y2 = getPathParam(currPathString, 2);
@@ -1116,11 +1098,6 @@ public class Shape2Xml
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 			double x2New = x2 * tr[0] + y2 * tr[2] + tr[4];
 			double y2New = x2 * tr[1] + y2 * tr[3] + tr[5];
-
-			x2New = roundToDecimals(x2New, configDoc.getDecimalsToRound());
-			y2New = roundToDecimals(y2New, configDoc.getDecimalsToRound());
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "S " + x2New + " " + y2New + " " + xNew + " " + yNew + " ";
 
@@ -1145,11 +1122,6 @@ public class Shape2Xml
 			double newRelX2 = newAbsX2 - lastPathX;
 			double newRelY2 = newAbsY2 - lastPathY;
 
-			newRelX2 = roundToDecimals(newRelX2, configDoc.getDecimalsToRound());
-			newRelY2 = roundToDecimals(newRelY2, configDoc.getDecimalsToRound());
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "s " + newRelX2 + " " + newRelY2 + " " + newRelX + " " + newRelY + " ";
 
 			lastPathX += newRelX;
@@ -1160,7 +1132,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartCurve(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartCurve(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double x1 = getPathParam(currPathString, 1);
 		double y1 = getPathParam(currPathString, 2);
@@ -1179,13 +1151,6 @@ public class Shape2Xml
 			double y1New = x1 * tr[1] + y1 * tr[3] + tr[5];
 			double x2New = x2 * tr[0] + y2 * tr[2] + tr[4];
 			double y2New = x2 * tr[1] + y2 * tr[3] + tr[5];
-
-			x1New = roundToDecimals(x1New, configDoc.getDecimalsToRound());
-			y1New = roundToDecimals(y1New, configDoc.getDecimalsToRound());
-			x2New = roundToDecimals(x2New, configDoc.getDecimalsToRound());
-			y2New = roundToDecimals(y2New, configDoc.getDecimalsToRound());
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "C " + x1New + " " + y1New + " " + x2New + " " + y2New + " " + xNew + " " + yNew + " ";
 
@@ -1216,13 +1181,6 @@ public class Shape2Xml
 			double newRelX2 = newAbsX2 - lastPathX;
 			double newRelY2 = newAbsY2 - lastPathY;
 
-			newRelX1 = roundToDecimals(newRelX1, configDoc.getDecimalsToRound());
-			newRelY1 = roundToDecimals(newRelY1, configDoc.getDecimalsToRound());
-			newRelX2 = roundToDecimals(newRelX2, configDoc.getDecimalsToRound());
-			newRelY2 = roundToDecimals(newRelY2, configDoc.getDecimalsToRound());
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "c " + newRelX1 + " " + newRelY1 + " " + newRelX2 + " " + newRelY2 + " " + newRelX + " " + newRelY + " ";
 
 			lastPathX += newRelX;
@@ -1233,7 +1191,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartVerLine(String currPathString,	Double[] tr,	boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartVerLine(String currPathString,	Double[] tr, boolean isAbs)
 	{
 		double x = 0;
 		double y = getPathParam(currPathString, 1);
@@ -1245,9 +1203,6 @@ public class Shape2Xml
 			prevPathY = y;
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
-
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "L " + xNew + " " + yNew + " ";
 			lastPathX = xNew;
@@ -1264,9 +1219,6 @@ public class Shape2Xml
 			double newRelX = newAbsX - lastPathX;
 			double newRelY = newAbsY - lastPathY;
 
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "l " + newRelX + " " + newRelY + " ";
 			lastPathX += newRelX;
 			lastPathY += newRelY;
@@ -1276,7 +1228,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartHorLine(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartHorLine(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double x = getPathParam(currPathString, 1);
 		double y = 0;
@@ -1290,8 +1242,42 @@ public class Shape2Xml
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
+			currPathString = "L " + xNew + " " + yNew + " ";
+			lastPathX = xNew;
+			lastPathY = yNew;
+		}
+		else
+		{
+			double oldAbsX = prevPathX + x;
+			double oldAbsY = prevPathY + y;
+			prevPathX += x;
+			prevPathY += y;
+			double newAbsX = oldAbsX * tr[0] + oldAbsY * tr[2] + tr[4];
+			double newAbsY = oldAbsX * tr[1] + oldAbsY * tr[3] + tr[5];
+			double newRelX = newAbsX - lastPathX;
+			double newRelY = newAbsY - lastPathY;
+
+			currPathString = "l " + newRelX + " " + newRelY + " ";
+			lastPathX += newRelX;
+			lastPathY += newRelY;
+		}
+
+		return currPathString;
+	}
+
+	//for internal use only
+	private static String matrixTransformPathPartLine(String currPathString, Double[] tr, boolean isAbs)
+	{
+		double x = getPathParam(currPathString, 1);
+		double y = getPathParam(currPathString, 2);
+
+
+		if (isAbs)
+		{
+			prevPathX = x;
+			prevPathY = y;
+			double xNew = x * tr[0] + y * tr[2] + tr[4];
+			double yNew = x * tr[1] + y * tr[3] + tr[5];
 
 			currPathString = "L " + xNew + " " + yNew + " ";
 			lastPathX = xNew;
@@ -1308,9 +1294,6 @@ public class Shape2Xml
 			double newRelX = newAbsX - lastPathX;
 			double newRelY = newAbsY - lastPathY;
 
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "l " + newRelX + " " + newRelY + " ";
 			lastPathX += newRelX;
 			lastPathY += newRelY;
@@ -1320,50 +1303,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static String matrixTransformPathPartLine(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
-	{
-		double x = getPathParam(currPathString, 1);
-		double y = getPathParam(currPathString, 2);
-
-
-		if (isAbs)
-		{
-			prevPathX = x;
-			prevPathY = y;
-			double xNew = x * tr[0] + y * tr[2] + tr[4];
-			double yNew = x * tr[1] + y * tr[3] + tr[5];
-
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
-
-			currPathString = "L " + xNew + " " + yNew + " ";
-			lastPathX = xNew;
-			lastPathY = yNew;
-		}
-		else
-		{
-			double oldAbsX = prevPathX + x;
-			double oldAbsY = prevPathY + y;
-			prevPathX += x;
-			prevPathY += y;
-			double newAbsX = oldAbsX * tr[0] + oldAbsY * tr[2] + tr[4];
-			double newAbsY = oldAbsX * tr[1] + oldAbsY * tr[3] + tr[5];
-			double newRelX = newAbsX - lastPathX;
-			double newRelY = newAbsY - lastPathY;
-
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
-			currPathString = "l " + newRelX + " " + newRelY + " ";
-			lastPathX += newRelX;
-			lastPathY += newRelY;
-		}
-
-		return currPathString;
-	}
-
-	//for internal use only
-	private static String matrixTransformPathPartMove(String currPathString, Double[] tr, boolean isAbs, XmlConfig configDoc)
+	private static String matrixTransformPathPartMove(String currPathString, Double[] tr, boolean isAbs)
 	{
 		double x = getPathParam(currPathString, 1);
 		double y = getPathParam(currPathString, 2);
@@ -1374,9 +1314,6 @@ public class Shape2Xml
 			prevPathY = y;
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
-
-			xNew = roundToDecimals(xNew, configDoc.getDecimalsToRound());
-			yNew = roundToDecimals(yNew, configDoc.getDecimalsToRound());
 
 			currPathString = "M " + xNew + " " + yNew + " ";
 			lastPathX = xNew;
@@ -1393,9 +1330,6 @@ public class Shape2Xml
 			double newRelX = newAbsX - lastPathX;
 			double newRelY = newAbsY - lastPathY;
 
-			newRelX = roundToDecimals(newRelX, configDoc.getDecimalsToRound());
-			newRelY = roundToDecimals(newRelY, configDoc.getDecimalsToRound());
-
 			currPathString = "m " + newRelX + " " + newRelY + " ";
 			lastPathX += newRelX;
 			lastPathY += newRelY;
@@ -1405,7 +1339,7 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	private static int nextPartIndex(String path)
+	public static int nextPartIndex(String path)
 	{
 		int nextPartStartIndex=path.length();
 		int currIndex = path.indexOf("M", 1);
@@ -1553,7 +1487,7 @@ public class Shape2Xml
 
 	//for internal use only
 	// param # starting from 1
-	private static double getPathParam(String pathString, int index)
+	public static double getPathParam(String pathString, int index)
 	{
 		pathString = pathString.replaceAll(",", ", ");
 		pathString = pathString.replaceAll("  ", " ");

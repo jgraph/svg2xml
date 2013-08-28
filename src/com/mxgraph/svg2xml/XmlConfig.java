@@ -5,8 +5,6 @@
 
 package com.mxgraph.svg2xml;
 
-import java.awt.geom.Rectangle2D;
-
 public class XmlConfig 
 {
 	//NOTE: don't set these variables manually, they are read from the XML config files.

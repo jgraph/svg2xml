@@ -67,7 +67,7 @@ public class Svg2Xml
 	public Svg2Xml(Svg2XmlGui gui)
 	{
 		destConfigDoc = new XmlConfig(gui);
-		// TODO finish the method:
+		// order of actions:
 		//1. Config settings are given default values combined with the settings from the UI.
 		//2. check if additional config files exist. Those are the group config and individual stencil config files in XML format. If they exist, they are combined and the config settings are altered accordingly.
 		//3. the SVG is flattened. This consists of parsing <defs> blocks and explicitly put them where needed. The second part is flattening groups. Inherit explicit style to all elements that are part of a group. After style inheritance remove group and put back element as individual shapes.
@@ -643,7 +643,7 @@ public class Svg2Xml
 		if (styleDiff.containsKey("strokecolor") && !styleDiff.get("strokecolor").equals(""))
 		{
 			Element el = null;
-			
+
 			if (elementName.equals("text") || elementName.equals("tspan") )
 			{
 				if(!styleDiff.containsKey("fillcolor") || styleDiff.get("fillcolor").equals(""))
@@ -664,7 +664,7 @@ public class Svg2Xml
 		if (styleDiff.containsKey("fillcolor") && !styleDiff.get("fillcolor").equals(""))
 		{
 			Element el = null;
-			
+
 			if (elementName.equals("text") || elementName.equals("tspan") )
 			{
 				el = doc.createElement("fontcolor");
@@ -1157,7 +1157,7 @@ public class Svg2Xml
 				{
 					Node currChild = children.item(i);
 
-//					if (currChild.getNodeType() == Node.ELEMENT_NODE || currChild.getNodeName().equals("text"))
+					//					if (currChild.getNodeType() == Node.ELEMENT_NODE || currChild.getNodeName().equals("text"))
 					if (currChild.getNodeType() == Node.ELEMENT_NODE)
 					{
 						Element currEl = (Element) currChild;
@@ -1191,7 +1191,7 @@ public class Svg2Xml
 				{
 					Node currChild = children.item(i);
 
-//					if (currChild.getNodeType() == Node.ELEMENT_NODE || currChild.getNodeType() == Node.TEXT_NODE)
+					//					if (currChild.getNodeType() == Node.ELEMENT_NODE || currChild.getNodeType() == Node.TEXT_NODE)
 					if (currChild.getNodeType() == Node.ELEMENT_NODE)
 					{
 						Element currEl = (Element) currChild;
@@ -1342,9 +1342,33 @@ public class Svg2Xml
 				b = b + arrB.get(i);
 			}
 
-			r = r / arrR.size();
-			g = g / arrG.size();
-			b = b / arrB.size();
+			if (arrR.size() > 0)
+			{
+				r = r / arrR.size();
+			}
+			else
+			{
+				r = 0;
+			}
+			
+			if (arrR.size() > 0)
+			{
+				g = g / arrG.size();
+			}
+			else
+			{
+				g = 0;
+			}
+			
+			if (arrR.size() > 0)
+			{
+				b = b / arrB.size();
+			}
+			else
+			{
+				b = 0;
+			}
+			
 
 			//		finalColor = "#" + Integer.toString(r) + Integer.toString(g) + Integer.toString(b);
 			finalColor = "#";
@@ -2289,11 +2313,11 @@ public class Svg2Xml
 		B[2][2] = 1.0;
 
 		String result = "matrix(" + Shape2Xml.roundToDecimals(C[0][0], roundDec) + " " 
-		+ Shape2Xml.roundToDecimals(C[1][0], roundDec) + " "
-		+ Shape2Xml.roundToDecimals(C[0][1], roundDec) + " "
-		+ Shape2Xml.roundToDecimals(C[1][1], roundDec) + " "
-		+ Shape2Xml.roundToDecimals(C[0][2], roundDec) + " "
-		+ Shape2Xml.roundToDecimals(C[1][2], roundDec) + ")";
+				+ Shape2Xml.roundToDecimals(C[1][0], roundDec) + " "
+				+ Shape2Xml.roundToDecimals(C[0][1], roundDec) + " "
+				+ Shape2Xml.roundToDecimals(C[1][1], roundDec) + " "
+				+ Shape2Xml.roundToDecimals(C[0][2], roundDec) + " "
+				+ Shape2Xml.roundToDecimals(C[1][2], roundDec) + ")";
 		return result;
 	}
 }
