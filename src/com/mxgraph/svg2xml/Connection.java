@@ -51,7 +51,7 @@ public class Connection
 		boolean isExistingName = false;
 		String currName = constraint.getName();
 
-		if (constraints != null)
+		if (constraints != null && !currName.equals(""))
 		{
 			for (int i = 0; i < constraints.size(); i++)
 			{

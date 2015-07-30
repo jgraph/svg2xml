@@ -279,16 +279,35 @@ public class Svg2Xml
 
 			srcSVGDoc = parseXml(srcXmlString);
 			srcSVGDoc = flattenSvg(srcSVGDoc);
+			
+			//TODO remove connection points
+			Connection svgConnects = getConnections(srcSVGDoc);
+			srcSVGDoc = removeConnections(srcSVGDoc);
 
 			//DEBUG printing source SVG after flattening
-			//			System.out.println("************************************************");
-			//			System.out.println("Document after flattening:");
-			//			Svg2Xml.printDocument(srcSVGDoc, System.out);
+//						System.out.println("************************************************");
+//						System.out.println("Document after flattening:");
+//						Svg2Xml.printDocument(srcSVGDoc, System.out);
 
 			mxStencilShape newShape = new mxStencilShape(srcSVGDoc);
 			Rectangle2D bounds = newShape.getBoundingBox();
 
+			//recalculate connections to relative coords
+			ArrayList<Constraint> constraints = svgConnects.getConstraints();
+			
+			for (int j=0; j < constraints.size(); j++)
+			{
+				Constraint currConstraint = constraints.get(j);
+				
+				double x = currConstraint.getX() - bounds.getMinX();
+				x = Math.round(x * 100.0 / bounds.getWidth()) / 100.0;
+				currConstraint.setX(x);
 
+				double y = currConstraint.getY() - bounds.getMinY();
+				y = Math.round(y * 100.0 / bounds.getHeight()) / 100.0;
+				currConstraint.setY(y);
+			}
+			
 			double stencilBoundsMinX = 0;
 			double stencilBoundsMinY = 0;
 			double stencilBoundsMaxX = 5;
@@ -337,7 +356,7 @@ public class Svg2Xml
 				DocumentBuilder docBuild = docBuilderFactory.newDocumentBuilder();
 
 				Document destDoc = docBuild.newDocument();
-				createBackbone(destDoc, destConfigDoc, shapeName, srcSVGDoc);
+				createBackbone(destDoc, destConfigDoc, shapeName, srcSVGDoc, constraints);
 
 				//6. the default style is formed. (the style settings that are default if nothing is specified otherwise)
 				//7. get the first element from the SVG.
@@ -2063,7 +2082,7 @@ public class Svg2Xml
 	 * @param srcSVGDoc 
 	 * @param shapeName name of the stencil
 	 */
-	private static void createBackbone(Document destDoc, XmlConfig destConfigDoc, String stencilName, Document srcSVGDoc)
+	private static void createBackbone(Document destDoc, XmlConfig destConfigDoc, String stencilName, Document srcSVGDoc, ArrayList <Constraint> svgConnections)
 	{
 		Element root = destDoc.createElement("shape");
 		stencilName = stencilName.replaceAll("_", " ");
@@ -2105,6 +2124,18 @@ public class Svg2Xml
 			constraint = connection.getConstraints();
 		}
 
+		if (svgConnections != null)
+		{
+			if (constraint != null)
+			{
+				constraint.addAll(svgConnections);
+			}
+			else
+			{
+				constraint = svgConnections;
+			}
+		}
+		
 		if (constraint != null)
 		{
 			for (int i = 0; i < constraint.size(); i++)
@@ -2118,7 +2149,7 @@ public class Svg2Xml
 				connRoot.appendChild(currConstraint);
 			}
 		}
-
+		
 		root.appendChild(connRoot);
 
 		if (destConfigDoc.isBackground())
@@ -2320,5 +2351,77 @@ public class Svg2Xml
 				+ Shape2Xml.roundToDecimals(C[1][2], roundDec) + ")";
 		return result;
 	}
-}
+	
+	/**
+	 * Reads out and removes the connection elements from svgDoc
+	 * @param svgDoc
+	 * @return all the connections (ellipse element with mxConnection="1" attribute)
+	 */
+	private Connection getConnections(Document svgDoc)
+	{
+		Connection connections = new Connection();
+		
+		if (svgDoc != null)
+		{
+			NodeList ellipseList = svgDoc.getElementsByTagName("ellipse");
+
+			if (ellipseList != null)
+			{
+				for (int i = 0; i < ellipseList.getLength(); i++)
+				{
+					Element currEllipse = (Element) ellipseList.item(i);
+					if (currEllipse.getAttribute("mxConnection").equals("1"))
+					{
+						Constraint newConstraint = new Constraint();
+						newConstraint.setName(currEllipse.getAttribute("mxName"));
+						newConstraint.setX(Double.valueOf(currEllipse.getAttribute("cx")));
+						newConstraint.setY(Double.valueOf(currEllipse.getAttribute("cy")));
+						boolean perimeter = false;
+
+						if (currEllipse.getAttribute("mxPerimeter").equals("1"))
+						{
+							perimeter = true;
+						}
+
+						newConstraint.setPerimeter(perimeter);
+						connections.addConstraint(newConstraint);
+					}
+				}
+
+				return connections;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Reads out and removes the connection elements from svgDoc
+	 * @param svgDoc
+	 * @return all the connections (ellipse element with mxConnection="1" attribute)
+	 */
+	private Document removeConnections(Document svgDoc)
+	{
+		if (svgDoc != null)
+		{
+			NodeList ellipseList = svgDoc.getElementsByTagName("ellipse");
+
+			if (ellipseList != null)
+			{
+				for (int i = 0; i < ellipseList.getLength(); i++)
+				{
+					Element currEllipse = (Element) ellipseList.item(i);
+
+					if (currEllipse.getAttribute("mxConnection").equals("1"))
+					{
+						currEllipse.getParentNode().removeChild(currEllipse);
+						i--;
+					}
+				}
+			}
+		}
+
+		return svgDoc;
+	}
+};
 
