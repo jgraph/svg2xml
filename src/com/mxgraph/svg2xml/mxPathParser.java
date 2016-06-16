@@ -44,20 +44,42 @@ public class mxPathParser
 		}
 
 		this.pathEl = doc.createElement("path");
-
+		char prevPathType = 'm';
+		
 		do
 		{
-			while (svgPath.charAt(0)==' ')
-			{
-				svgPath=svgPath.substring(1, svgPath.length());
-			}
-
+			svgPath = svgPath.trim();
 			int nextPartStartIndex; 
 
-			nextPartStartIndex = Shape2Xml.nextPartIndex(svgPath);
-			String currPathString = svgPath.substring(0, nextPartStartIndex);
+			char currPathType = svgPath.charAt(0);
 
-			switch (currPathString.charAt(0))
+			boolean hasLetter = true;
+			
+			if (!Character.isLetter(currPathType))
+			{
+				currPathType = prevPathType;
+				hasLetter = false;
+			}
+			
+			nextPartStartIndex = Shape2Xml.nextPartIndex(svgPath, currPathType);
+			
+			String currPathString = "";
+			
+			if (nextPartStartIndex == -1)
+			{
+				currPathString = svgPath;
+			}
+			else
+			{
+				currPathString = svgPath.substring(0, nextPartStartIndex);
+			}
+
+			if (!hasLetter)
+			{
+				currPathString = currPathType + " " + currPathString;
+			}
+			
+			switch (currPathType)
 			{
 				case 0xD:
 				case 0xA:
@@ -125,7 +147,15 @@ public class mxPathParser
 				default:
 					break;
 			}
-			svgPath = svgPath.substring(nextPartStartIndex, svgPath.length());
+			
+			if (nextPartStartIndex == -1)
+			{
+				svgPath = "";
+			}
+			else
+			{
+				svgPath = svgPath.substring(nextPartStartIndex, svgPath.length());
+			}
 		} 
 		while (svgPath.length() > 0);
 

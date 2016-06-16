@@ -2211,7 +2211,8 @@ public class Svg2Xml
 		String e1String;
 		String f1String;
 
-		matrix1 = matrix1.replaceAll(",", "");
+		matrix1 = matrix1.replaceAll(",", " ");
+		matrix1 = matrix1.replaceAll("  ", " ");
 		int startCurrIndex = matrix1.indexOf("matrix(");
 		int endCurrIndex = matrix1.indexOf(" ", startCurrIndex);
 		a1String = matrix1.substring(startCurrIndex+7, endCurrIndex);
@@ -2267,7 +2268,8 @@ public class Svg2Xml
 		String e2String;
 		String f2String;
 
-		matrix2 = matrix2.replaceAll(",", "");
+		matrix2 = matrix2.replaceAll(",", " ");
+		matrix2 = matrix2.replaceAll("  ", " ");
 		startCurrIndex = matrix2.indexOf("matrix(");
 		endCurrIndex = matrix2.indexOf(" ", startCurrIndex);
 		a2String = matrix2.substring(startCurrIndex+7, endCurrIndex);

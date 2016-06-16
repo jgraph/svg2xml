@@ -280,8 +280,8 @@ public class Shape2Xml
 		{
 			String path = element.getAttribute("d");
 			path = path.replaceAll(",", " ");
-			path = path.replaceAll("\\s{2,}", " ");
 			path = path.replaceAll("-", " -");
+			path = path.replaceAll("\\s{2,}", " ");
 			path = path.replaceAll("E -", "E-");
 			element.setAttribute("d", path);
 
@@ -845,6 +845,11 @@ public class Shape2Xml
 	 */
 	private static String matrixTransformPath(String pathString, Double[] tr, XmlConfig configDoc)
 	{
+		prevPathX = 0;
+		prevPathY = 0;
+		lastPathX = 0;
+		lastPathY = 0;
+
 		if (pathString != null)
 		{
 			pathString = pathString.replaceAll(System.getProperty("line.separator"), "");
@@ -855,20 +860,44 @@ public class Shape2Xml
 			{
 				String newPathString = "";
 				int nextPartStartIndex; 
-
+				char prevPathType = 'm';
+				
 				do
 				{
-					// remove leading space
-					while (pathString.charAt(0)==' ')
+					pathString = pathString.trim();
+					nextPartStartIndex = nextPartIndex(pathString, prevPathType);
+					String currPathString = null;
+					
+					if (nextPartStartIndex != -1)
 					{
-						pathString=pathString.substring(1, pathString.length());
+						currPathString = pathString.substring(0, nextPartStartIndex);
 					}
-
-					nextPartStartIndex = nextPartIndex(pathString);
-					String currPathString = pathString.substring(0, nextPartStartIndex);
+					else
+					{
+						currPathString = pathString;
+					}
+					
+					char currPathType = currPathString.charAt(0);
+					
+					if (!Character.isLetter(currPathType))
+					{
+						currPathType = prevPathType;
+						currPathString = currPathType + " " + currPathString;
+					}
+					
 					newPathString += parseMatrixTransformPathPart(currPathString, tr);
-					pathString = pathString.substring(nextPartStartIndex, pathString.length());
+					
+					if (nextPartStartIndex != -1)
+					{
+						pathString = pathString.substring(nextPartStartIndex, pathString.length());
+						prevPathType = currPathType;
+					}
+					else
+					{
+						pathString = "";
+					}
 				} 
+				
 				while (pathString.length() > 0);
 
 				newPathString = newPathString.substring(0, (newPathString.length() - 1));
@@ -1339,150 +1368,69 @@ public class Shape2Xml
 	}
 
 	//for internal use only
-	public static int nextPartIndex(String path)
+	public static int nextPartIndex(String path, char lastPathType)
 	{
-		int nextPartStartIndex=path.length();
-		int currIndex = path.indexOf("M", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		path = path.replaceAll(",", " ");
+		path = path.replaceAll("\\s{2,}", " ");
+		path = path.trim();
+		
+		char currPathType = path.charAt(0);
+		
+		if (!Character.isLetter(currPathType))
 		{
-			nextPartStartIndex = currIndex;
+			currPathType = lastPathType;
 		}
 
-		currIndex = path.indexOf("m", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		int numParams = 0;
+		CharSequence pathType = String.valueOf(currPathType);
+		String set = "HhVv";
+		
+		if (set.contains(pathType))
 		{
-			nextPartStartIndex = currIndex;
+			numParams = 1;
 		}
-
-		currIndex = path.indexOf("L", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		set = "MmLlTt";
+		
+		if (set.contains(pathType))
 		{
-			nextPartStartIndex = currIndex;
+			numParams = 2;
 		}
-
-		currIndex = path.indexOf("l", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		set = "SsQq";
+		
+		if (set.contains(pathType))
 		{
-			nextPartStartIndex = currIndex;
+			numParams = 4;
 		}
-
-		currIndex = path.indexOf("H", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		set = "Cc";
+		
+		if (set.contains(pathType))
 		{
-			nextPartStartIndex = currIndex;
+			numParams = 6;
 		}
-
-		currIndex = path.indexOf("h", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		set = "Aa";
+		
+		if (set.contains(pathType))
 		{
-			nextPartStartIndex = currIndex;
+			numParams = 7;
 		}
-
-		currIndex = path.indexOf("V", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		int currIndex = 0;
+		
+		if (!(Character.isDigit(path.charAt(0)) || path.charAt(0) == '-'))
 		{
-			nextPartStartIndex = currIndex;
+			numParams++;
 		}
-
-		currIndex = path.indexOf("v", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
+		
+		for (int i = 0; i < numParams; ++i) 
 		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("C", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("c", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("S", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("s", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("Q", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("q", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("T", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("t", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("A", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("a", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("Z", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		currIndex = path.indexOf("z", 1);
-
-		if ((currIndex > 0) && (currIndex < nextPartStartIndex))
-		{
-			nextPartStartIndex = currIndex;
-		}
-
-		return nextPartStartIndex;
+			currIndex = path.indexOf(" ", currIndex + 1);
+		};
+		
+		return currIndex;
 	}
 
 	//for internal use only
@@ -1639,7 +1587,7 @@ public class Shape2Xml
 		String eString;
 		String fString;
 
-		trString = trString.replaceAll(",", "");
+		trString = trString.replaceAll(",", " ");
 		int startCurrIndex = trString.indexOf("matrix(");
 		int endCurrIndex = trString.indexOf(" ",startCurrIndex);
 		aString = trString.substring(startCurrIndex+7, endCurrIndex);
