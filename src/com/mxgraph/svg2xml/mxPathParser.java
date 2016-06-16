@@ -427,19 +427,31 @@ public class mxPathParser
 		double x = Shape2Xml.getPathParam(path, 6);
 		double y = Shape2Xml.getPathParam(path, 7);
 
-		Element currChild = doc.createElement("arc");
-		currChild.setAttribute("rx", Double.toString(rtd(rx)));
-		currChild.setAttribute("ry", Double.toString(rtd(ry)));
-		currChild.setAttribute("x-axis-rotation", Double.toString(rtd(ax)));
-		currChild.setAttribute("large-arc-flag", Double.toString(laf));
-		currChild.setAttribute("sweep-flag", Double.toString(sf));
-		currChild.setAttribute("x", Double.toString(rtd(x+currentX)));
-		currChild.setAttribute("y", Double.toString(rtd(y+currentY)));
-		pathEl.appendChild(currChild);
-		xCenter = rtd(currentX += x);
-		yCenter = rtd(currentY += y);
+		if (rx > 0 && ry > 0)
+		{
+			Element currChild = doc.createElement("arc");
+			currChild.setAttribute("rx", Double.toString(rtd(rx)));
+			currChild.setAttribute("ry", Double.toString(rtd(ry)));
+			currChild.setAttribute("x-axis-rotation", Double.toString(rtd(ax)));
+			currChild.setAttribute("large-arc-flag", Double.toString(laf));
+			currChild.setAttribute("sweep-flag", Double.toString(sf));
+			currChild.setAttribute("x", Double.toString(rtd(x+currentX)));
+			currChild.setAttribute("y", Double.toString(rtd(y+currentY)));
+			pathEl.appendChild(currChild);
+			xCenter = rtd(currentX += x);
+			yCenter = rtd(currentY += y);
+		}
+		else
+		{
+			currentX = currentX + x;
+			currentY = currentY + y;
+			Element currChild = doc.createElement("line");
+			currChild.setAttribute("x", Double.toString(rtd(currentX)));
+			currChild.setAttribute("y", Double.toString(rtd(currentY)));
+			pathEl.appendChild(currChild);
+		}
 	}
-
+	
 	private void arcAbs(String path)
 	{
 		double rx = Shape2Xml.getPathParam(path, 1);
@@ -450,17 +462,29 @@ public class mxPathParser
 		double x = Shape2Xml.getPathParam(path, 6);
 		double y = Shape2Xml.getPathParam(path, 7);
 
-		Element currChild = doc.createElement("arc");
-		currChild.setAttribute("rx", Double.toString(rtd(rx)));
-		currChild.setAttribute("ry", Double.toString(rtd(ry)));
-		currChild.setAttribute("x-axis-rotation", Double.toString(rtd(ax)));
-		currChild.setAttribute("large-arc-flag", Double.toString(laf));
-		currChild.setAttribute("sweep-flag", Double.toString(sf));
-		currChild.setAttribute("x", Double.toString(rtd(x)));
-		currChild.setAttribute("y", Double.toString(rtd(y)));
-		pathEl.appendChild(currChild);
-		xCenter = currentX = rtd(x);
-		yCenter = currentY = rtd(y);
+		if (rx > 0 && ry > 0)
+		{
+			Element currChild = doc.createElement("arc");
+			currChild.setAttribute("rx", Double.toString(rtd(rx)));
+			currChild.setAttribute("ry", Double.toString(rtd(ry)));
+			currChild.setAttribute("x-axis-rotation", Double.toString(rtd(ax)));
+			currChild.setAttribute("large-arc-flag", Double.toString(laf));
+			currChild.setAttribute("sweep-flag", Double.toString(sf));
+			currChild.setAttribute("x", Double.toString(rtd(x)));
+			currChild.setAttribute("y", Double.toString(rtd(y)));
+			pathEl.appendChild(currChild);
+			xCenter = currentX = rtd(x);
+			yCenter = currentY = rtd(y);
+		}
+		else
+		{
+			currentX = x;
+			currentY = y;
+			Element currChild = doc.createElement("line");
+			currChild.setAttribute("x", Double.toString(rtd(currentX)));
+			currChild.setAttribute("y", Double.toString(rtd(currentY)));
+			pathEl.appendChild(currChild);
+		}
 	}
 
 	/**
