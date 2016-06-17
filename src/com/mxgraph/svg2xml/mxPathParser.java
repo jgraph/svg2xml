@@ -57,7 +57,19 @@ public class mxPathParser
 			
 			if (!Character.isLetter(currPathType))
 			{
-				currPathType = prevPathType;
+				if (prevPathType == 'm')
+				{
+					currPathType = 'l';
+				}
+				else if (prevPathType == 'M')
+				{
+					currPathType = 'L';
+				}
+				else
+				{
+					currPathType = prevPathType;
+				}
+				
 				hasLetter = false;
 			}
 			

@@ -881,7 +881,19 @@ public class Shape2Xml
 					
 					if (!Character.isLetter(currPathType))
 					{
-						currPathType = prevPathType;
+						if (prevPathType == 'm')
+						{
+							currPathType = 'l';
+						}
+						else if (prevPathType == 'M')
+						{
+							currPathType = 'L';
+						}
+						else
+						{
+							currPathType = prevPathType;
+						}
+						
 						currPathString = currPathType + " " + currPathString;
 					}
 					
