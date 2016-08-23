@@ -283,6 +283,7 @@ public class Shape2Xml
 			path = path.replaceAll("-", " -");
 			path = path.replaceAll("\\s{2,}", " ");
 			path = path.replaceAll("E -", "E-");
+			path = path.replaceAll("e -", "e-");
 			element.setAttribute("d", path);
 
 			Double[] tr = getTransform(element);
