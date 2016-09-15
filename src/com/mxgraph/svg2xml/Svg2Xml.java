@@ -990,7 +990,7 @@ public class Svg2Xml
 						style.setDashed("false");
 					}
 				}
-				else if (currName.equals("stroke-opacity") || currName.equals("fill-opacity"))
+				else if (currName.equals("stroke-opacity") || currName.equals("fill-opacity") || currName.equals("opacity"))
 				{
 					style.setAlpha(nv);
 				}
