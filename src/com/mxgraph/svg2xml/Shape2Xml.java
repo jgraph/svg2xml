@@ -279,6 +279,8 @@ public class Shape2Xml
 		else if (element.getNodeName().equals("path"))
 		{
 			String path = element.getAttribute("d");
+			path = path.replaceAll("(?=[a-zA-Z])", " ");
+			path = path.replaceAll("(?<=[a-zA-Z])", " ");
 			path = path.replaceAll(",", " ");
 			path = path.replaceAll("-", " -");
 			path = path.replaceAll("\\s{2,}", " ");
