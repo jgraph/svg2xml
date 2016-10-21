@@ -728,14 +728,24 @@ public class Svg2Xml
 		if (styleDiff.containsKey("dashpattern"))
 		{
 			Element el = doc.createElement("dashpattern");
-			el.setAttribute("pattern", styleDiff.get("dashpattern"));
+			String pattern = styleDiff.get("dashpattern");
+			pattern = pattern.replaceAll(",", " ");
+			el.setAttribute("pattern", pattern);
 			node.appendChild(el);
 		}
 
 		if (styleDiff.containsKey("dashed"))
 		{
 			Element el = doc.createElement("dashed");
-			el.setAttribute("dashed", styleDiff.get("dashed"));
+			if (styleDiff.get("dashed").equals("true"))
+			{
+				el.setAttribute("dashed", "1");
+			}
+			else
+			{
+				el.setAttribute("dashed", "0");
+			}
+			
 			node.appendChild(el);
 		}
 
