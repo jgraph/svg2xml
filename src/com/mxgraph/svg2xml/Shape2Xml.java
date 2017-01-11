@@ -10,6 +10,8 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -129,6 +131,10 @@ public class Shape2Xml
 
 			String pointsString = element.getAttribute("points");
 			int dn = configDoc.getDecimalsToRound();
+			
+			pointsString = pointsString.replaceAll("\\s{2,}", " ");
+			pointsString = pointsString.replaceAll("E -", "E-");
+			pointsString = pointsString.replaceAll("e -", "e-");
 
 			String newPointsString = "";
 			double x = 0;
@@ -147,35 +153,77 @@ public class Shape2Xml
 				spaceIndex = pointsString.length();
 			}
 
-			while ((commaIndex != -1) && (spaceIndex > commaIndex))
+			if (commaIndex != -1)
 			{
-				//read x
-				xString = pointsString.substring(0, commaIndex);
-				//read y
-				yString = pointsString.substring(commaIndex + 1, spaceIndex);
-
-				x = Double.valueOf(xString);
-				y = Double.valueOf(yString);
-				x = x - configDoc.getStencilBoundsMinX();
-				y = y - configDoc.getStencilBoundsMinY();
-
-				// add the new coords to the new string
-				xNew = roundToDecimals(x * s, dn);
-				yNew = roundToDecimals(y * s, dn);
-
-				newPointsString += xNew + "," + yNew + " ";
-
-				pointsString = pointsString.substring(spaceIndex, pointsString.length());
-
-				commaIndex = pointsString.indexOf(",");
-				spaceIndex = pointsString.indexOf(" ", commaIndex + 1);
-
-				if (spaceIndex==-1)
+				while ((commaIndex != -1) && (spaceIndex > commaIndex))
 				{
-					spaceIndex = pointsString.length();
+					//read x
+					xString = pointsString.substring(0, commaIndex);
+					//read y
+					yString = pointsString.substring(commaIndex + 1, spaceIndex);
+	
+					x = Double.valueOf(xString);
+					y = Double.valueOf(yString);
+					x = x - configDoc.getStencilBoundsMinX();
+					y = y - configDoc.getStencilBoundsMinY();
+	
+					// add the new coords to the new string
+					xNew = roundToDecimals(x * s, dn);
+					yNew = roundToDecimals(y * s, dn);
+	
+					newPointsString += xNew + "," + yNew + " ";
+	
+					pointsString = pointsString.substring(spaceIndex, pointsString.length());
+	
+					commaIndex = pointsString.indexOf(",");
+					spaceIndex = pointsString.indexOf(" ", commaIndex + 1);
+	
+					if (spaceIndex==-1)
+					{
+						spaceIndex = pointsString.length();
+					}
 				}
 			}
-
+			else if (spaceIndex > -1)
+			{
+				spaceIndex = pointsString.indexOf(" ");
+				int spaceIndex2 = pointsString.indexOf(" ", spaceIndex + 1);
+				
+				while (spaceIndex2 != spaceIndex)
+				{
+					//read x
+					xString = pointsString.substring(0, spaceIndex);
+					//read y
+					yString = pointsString.substring(spaceIndex + 1, spaceIndex2);
+	
+					x = Double.valueOf(xString);
+					y = Double.valueOf(yString);
+					x = x - configDoc.getStencilBoundsMinX();
+					y = y - configDoc.getStencilBoundsMinY();
+	
+					// add the new coords to the new string
+					xNew = roundToDecimals(x * s, dn);
+					yNew = roundToDecimals(y * s, dn);
+	
+					newPointsString += xNew + "," + yNew + " ";
+	
+					pointsString = pointsString.substring(Math.min(spaceIndex2 + 1, pointsString.length()), pointsString.length());
+	
+					spaceIndex = pointsString.indexOf(" ");
+					spaceIndex2 = pointsString.indexOf(" ", spaceIndex + 1);
+	
+					if (spaceIndex==-1)
+					{
+						spaceIndex = pointsString.length();
+					}
+					
+					if (spaceIndex2==-1)
+					{
+						spaceIndex2 = pointsString.length();
+					}
+				}
+			}
+			
 			newPointsString = newPointsString.substring(0, (newPointsString.length() - 1));
 			newPointsString = setPathRoot(newPointsString, configDoc);
 //			String polyXML = "<path>" + System.getProperty("line.separator");
@@ -856,9 +904,21 @@ public class Shape2Xml
 		if (pathString != null)
 		{
 			pathString = pathString.replaceAll(System.getProperty("line.separator"), "");
+			pathString = pathString.replaceAll("E -", "E-");
+			pathString = pathString.replaceAll("e -", "e-");
 			pathString = pathString.replaceAll("\n", "");
 			pathString = pathString.replaceAll(" {2,}", " ");
+			pathString = pathString.replaceAll("-\\.", "-0.");
 
+			// handle the case of two decimals (".ddddd. to .ddddd 0.")
+			 Matcher m = Pattern.compile("\\.\\d+\\.").matcher(pathString);
+			 
+			 while (m.find()) {
+				 pathString = pathString.substring(0, m.end() - 1) + " 0" + pathString.substring(m.end() - 1, pathString.length());
+				 m = Pattern.compile("\\.\\d+\\.").matcher(pathString);
+			 }
+			 
+			 
 			if (tr != null)
 			{
 				String newPathString = "";
