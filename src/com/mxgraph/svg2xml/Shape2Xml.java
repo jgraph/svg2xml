@@ -909,6 +909,8 @@ public class Shape2Xml
 			pathString = pathString.replaceAll("\n", "");
 			pathString = pathString.replaceAll(" {2,}", " ");
 			pathString = pathString.replaceAll("-\\.", "-0.");
+			pathString = pathString.replaceAll(" e", "e");
+			pathString = pathString.replaceAll(" E", "e");
 
 			// handle the case of two decimals (".ddddd. to .ddddd 0.")
 			 Matcher m = Pattern.compile("\\.\\d+\\.").matcher(pathString);
@@ -1514,6 +1516,9 @@ public class Shape2Xml
 	{
 		pathString = pathString.replaceAll(",", ", ");
 		pathString = pathString.replaceAll("  ", " ");
+		pathString = pathString.replaceAll("E -", "E-");
+		pathString = pathString.replaceAll("e -", "e-");
+
 		int currIndex=0;
 		int currParamIndex = 0;
 
