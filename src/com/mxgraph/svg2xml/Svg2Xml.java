@@ -83,7 +83,7 @@ public class Svg2Xml
 		//14. get the next element
 		//15. determine its style
 		//16. compare the new style with the old one, and add the differences to the XML
-		//17. the new style becomes the “old style”
+		//17. the new style becomes the old style
 		//18. translate the SVG element into XML
 		//19. determine if restore and or save should be used
 		//20. add the new element to the XML
@@ -433,7 +433,7 @@ public class Svg2Xml
 				while (nextElement != null)
 				{
 					//15. determine its style
-					//17. the new style becomes the “old style”
+					//17. the new style becomes the old style
 					XmlStyle oldStyle = currStyle;
 					currStyle = getStyle(nextElement);
 
