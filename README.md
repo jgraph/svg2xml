@@ -3,10 +3,23 @@ svg2xml
 
 SVG to XML mxGraph stencil definition translation tool. This was created for internal use, so there are lots of things unfinished.
 
+Compile
+=======
+
+```mkdir classes
+javac -d classes -classpath lib/mxgraph-core.jar -sourcepath src src/com/mxgraph/svg2xml/Svg2XmlGui.java
+```
+
+Run
+===
+
+`java -classpath lib/mxgraph-core.jar:classes com.mxgraph.svg2xml.Svg2XmlGui`
+
+
 Quick start quide
 =================
 
-First, run Svg2XmlGui.java as a Java Application. The left file system defines what files or folders you want to convert. The right one, defines the destination.
+The left file system defines what files or folders you want to convert. The right one, defines the destination.
 
 If you select one file, a single stencil XML file will be generated for just that one stencil. 
 
