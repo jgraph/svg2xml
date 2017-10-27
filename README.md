@@ -27,7 +27,7 @@ If checked, stencil borders will be calculated based on content. If unchecked, t
 Use relative scaling
 ====================
 
-Of other than 1.00, the resulting stencils will be bigger or smaller compared to the source.
+If other than 1.00, the resulting stencils will be bigger or smaller compared to the source.
 
 Round coordinates
 =================
