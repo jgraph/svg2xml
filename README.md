@@ -6,7 +6,8 @@ SVG to XML mxGraph stencil definition translation tool. This was created for int
 Compile
 =======
 
-```mkdir classes
+```
+mkdir classes
 javac -d classes -classpath lib/mxgraph-core.jar -sourcepath src src/com/mxgraph/svg2xml/Svg2XmlGui.java
 ```
 
