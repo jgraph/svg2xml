@@ -20,7 +20,7 @@ Run
 Quick start quide
 =================
 
-The left file system defines what files or folders you want to convert. The right one, defines the destination.
+Run Svg2XmlGui. The left file system defines what files or folders you want to convert. The right one, defines the destination.
 
 If you select one file, a single stencil XML file will be generated for just that one stencil. 
 
