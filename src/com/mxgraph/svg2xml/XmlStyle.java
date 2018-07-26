@@ -80,7 +80,14 @@ public class XmlStyle
 	
 	public String getFillColor() 
 	{
-		return fillColor;
+		if (fillColor != null)
+		{
+			return fillColor;
+		}
+		else
+		{
+			return "none";
+		}
 	}
 	
 	public void setFillColor(String fillColor) 

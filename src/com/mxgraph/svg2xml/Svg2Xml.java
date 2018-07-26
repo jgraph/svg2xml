@@ -573,6 +573,8 @@ public class Svg2Xml
 				{
 					groupXml += "</shapes>";
 
+					groupXml = groupXml.replaceAll("\\.+0\"", "\"");
+
 					try
 					{
 						String currentDestPath = gui.destPath.getAbsolutePath();
@@ -610,15 +612,18 @@ public class Svg2Xml
 	 */
 	static String getStrokeString(XmlStyle currStyle)
 	{
-		if (!currStyle.getFillColor().equals("none") && !currStyle.getStrokeColor().equals("none"))
+		String fc = currStyle.getFillColor();
+		String sc = currStyle.getStrokeColor();
+		
+		if (!fc.equals("none") && !sc.equals("none"))
 		{
 			return "fillstroke";
 		}
-		else if (!currStyle.getFillColor().equals("none") && currStyle.getStrokeColor().equals("none"))
+		else if (!fc.equals("none") && sc.equals("none"))
 		{
 			return "fill";
 		}
-		else if (currStyle.getFillColor().equals("none") && !currStyle.getStrokeColor().equals("none"))
+		else if (fc.equals("none") && !sc.equals("none"))
 		{
 			return "stroke";
 		}
@@ -672,7 +677,7 @@ public class Svg2Xml
 					node.appendChild(el);
 				}
 			}
-			else
+			else if(!styleDiff.get("strokecolor").equals("none"))
 			{
 				el = doc.createElement("strokecolor");
 				el.setAttribute("color", styleDiff.get("strokecolor"));
@@ -687,14 +692,16 @@ public class Svg2Xml
 			if (elementName.equals("text") || elementName.equals("tspan") )
 			{
 				el = doc.createElement("fontcolor");
+				el.setAttribute("color", styleDiff.get("fillcolor"));
+				node.appendChild(el);
 			}
-			else
+			else  if(!styleDiff.get("fillcolor").equals("none"))
 			{
 				el = doc.createElement("fillcolor");
+				el.setAttribute("color", styleDiff.get("fillcolor"));
+				node.appendChild(el);
 			}
 
-			el.setAttribute("color", styleDiff.get("fillcolor"));
-			node.appendChild(el);
 		}
 
 		if (styleDiff.containsKey("strokewidth"))
