@@ -24,9 +24,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-//import com.mxgraph.svg2xml.mxPolylineProducer;
-//import com.mxgraph.svg2xml.svg1.PointsParser;
-
 /**
  * Transforms a SVG shape element to a JGraph XML element or elements, if necessary
  *
@@ -37,6 +34,11 @@ public class Shape2Xml
 	protected static double lastPathY=0; 
 	protected static double prevPathX=0; // where the last path part ended before transforming
 	protected static double prevPathY=0;
+	protected static double lastMoveX=0; // where the last move ended
+	protected static double lastMoveY=0; 
+	protected static double prevMoveX=0; // where the last move ended before transforming
+	protected static double prevMoveY=0;
+	
 	/**
 	 * Parses a SVG element to an stencil XML element
 	 * @param element SVG element that is to be parsed
@@ -1023,8 +1025,14 @@ public class Shape2Xml
 			case 't' : return newPath = matrixTransformPathPartSmoothQuad(currPathString, tr, false);
 			case 'A' : return newPath = matrixTransformPathPartArc(currPathString, tr, true);
 			case 'a' : return newPath = matrixTransformPathPartArc(currPathString, tr, false);
-			case 'Z' : return "Z ";
-			case 'z' : return "z ";
+			case 'Z' :
+				prevPathX = prevMoveX;
+				prevPathY = prevMoveY;
+				return "Z ";
+			case 'z' : 
+				prevPathX = prevMoveX;
+				prevPathY = prevMoveY;
+				return "z ";
 		}
 
 		if (!newPath.equals("error"))
@@ -1418,6 +1426,9 @@ public class Shape2Xml
 		{
 			prevPathX = x;
 			prevPathY = y;
+			prevMoveX = prevPathX;
+			prevMoveY = prevPathY;
+			
 			double xNew = x * tr[0] + y * tr[2] + tr[4];
 			double yNew = x * tr[1] + y * tr[3] + tr[5];
 
@@ -1431,14 +1442,17 @@ public class Shape2Xml
 			double oldAbsY = prevPathY + y;
 			prevPathX += x;
 			prevPathY += y;
+			prevMoveX = prevPathX;
+			prevMoveY = prevPathY;
 			double newAbsX = oldAbsX * tr[0] + oldAbsY * tr[2] + tr[4];
 			double newAbsY = oldAbsX * tr[1] + oldAbsY * tr[3] + tr[5];
-			double newRelX = newAbsX - lastPathX;
-			double newRelY = newAbsY - lastPathY;
 
-			currPathString = "m " + newRelX + " " + newRelY + " ";
-			lastPathX += newRelX;
-			lastPathY += newRelY;
+			currPathString = "M " + newAbsX + " " + newAbsY + " ";
+			lastPathX = newAbsX;
+			lastPathY = newAbsY;
+			
+			lastMoveX = lastPathX;
+			lastMoveY = lastPathY;
 		}
 
 		return currPathString;
