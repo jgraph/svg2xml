@@ -28,7 +28,7 @@ If you select one file, a single stencil XML file will be generated for just tha
 
 If you select multiple files, a single stencil XML file will be generated for the selected stencils. So those stencils will be one library.
 
-If you select a folder, all the files in the folder and all subfolders will be processe. Every folder will get one library created. So at the destination, all folders from the source path will be recreated and libraries will be named after folder names.
+If you select a folder, all the files in the folder and all subfolders will be processed. Every folder will get one library created. So at the destination, all folders from the source path will be recreated and libraries will be named after folder names.
 
 Options
 =======
