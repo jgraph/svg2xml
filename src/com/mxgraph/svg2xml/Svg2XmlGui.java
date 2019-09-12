@@ -30,6 +30,9 @@ public class Svg2XmlGui implements ActionListener{
 	//false: every stencil has its separate XML
 	protected boolean groupStencils=true;
 	
+	//namespace for group (applies only if no more than one folder is selected)
+	protected String groupNamespace = "";
+	
 	//use relative scaling (used if you want to change the size of resulting XMLs)
 	protected boolean relativeScaling=true;
 
@@ -70,7 +73,8 @@ public class Svg2XmlGui implements ActionListener{
 	protected JTextField roundDecimalNumComponent = new JTextField();
 	protected JFileChooser sourceFileListComponent = new JFileChooser();
 	protected JFileChooser destinationComponent = new JFileChooser();
-
+	protected JTextField namespaceComponent = new JTextField();
+	
 	/**
 	 * @param args
 	 */

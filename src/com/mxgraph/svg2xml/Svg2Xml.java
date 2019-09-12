@@ -763,6 +763,20 @@ public class Svg2Xml
 			node.appendChild(el);
 		}
 
+		if (styleDiff.containsKey("strokealpha"))
+		{
+			Element el = doc.createElement("strokealpha");
+			el.setAttribute("alpha", styleDiff.get("strokealpha"));
+			node.appendChild(el);
+		}
+
+		if (styleDiff.containsKey("fillalpha"))
+		{
+			Element el = doc.createElement("fillalpha");
+			el.setAttribute("alpha", styleDiff.get("fillalpha"));
+			node.appendChild(el);
+		}
+
 		if (styleDiff.containsKey("fontcolor"))
 		{
 			Element el = doc.createElement("fontcolor");
@@ -881,6 +895,16 @@ public class Svg2Xml
 			styleDiff.put("alpha", currStyle.getAlpha());
 		}
 
+		if (currStyle.getStrokeAlpha() != null && !prevStyle.getStrokeAlpha().equals(currStyle.getStrokeAlpha()))
+		{
+			styleDiff.put("strokealpha", currStyle.getStrokeAlpha());
+		}
+
+		if (currStyle.getFillAlpha() != null && !prevStyle.getFillAlpha().equals(currStyle.getFillAlpha()))
+		{
+			styleDiff.put("fillalpha", currStyle.getFillAlpha());
+		}
+
 		if (currStyle.getFontColor() != null && !prevStyle.getFontColor().equals(currStyle.getFontColor()))
 		{
 			styleDiff.put("fontcolor", currStyle.getFontColor());
@@ -937,6 +961,8 @@ public class Svg2Xml
 				(currStyle.getDashPattern().equals("") && !prevStyle.getDashPattern().equals("")) ||
 				(currStyle.isDashed().equals("") && !prevStyle.isDashed().equals("")) ||
 				(currStyle.getAlpha().equals("") && !prevStyle.getAlpha().equals("")) ||
+				(currStyle.getStrokeAlpha().equals("") && !prevStyle.getStrokeAlpha().equals("")) ||
+				(currStyle.getFillAlpha().equals("") && !prevStyle.getFillAlpha().equals("")) ||
 				(currStyle.getFontColor().equals("") && !prevStyle.getFontColor().equals("")) ||
 				(currStyle.isFontStyleBold().equals("") && !prevStyle.isFontStyleBold().equals("")) ||
 				(currStyle.isFontStyleItalic().equals("") && !prevStyle.isFontStyleItalic().equals("")) ||
@@ -1007,9 +1033,17 @@ public class Svg2Xml
 						style.setDashed("false");
 					}
 				}
-				else if (currName.equals("stroke-opacity") || currName.equals("fill-opacity") || currName.equals("opacity"))
+				else if (currName.equals("opacity"))
 				{
 					style.setAlpha(nv);
+				}
+				else if (currName.equals("stroke-opacity"))
+				{
+					style.setStrokeAlpha(nv);
+				}
+				else if (currName.equals("fill-opacity"))
+				{
+					style.setFillAlpha(nv);
 				}
 				else if (node.getNodeName().equals("text") && currName.equals("stroke"))
 				{
@@ -1640,6 +1674,16 @@ public class Svg2Xml
 						currStyle.setAlpha(parentStyle.getAlpha());
 					}
 
+					if (currStyle.getStrokeAlpha().equals(""))
+					{
+						currStyle.setStrokeAlpha(parentStyle.getStrokeAlpha());
+					}
+
+					if (currStyle.getFillAlpha().equals(""))
+					{
+						currStyle.setFillAlpha(parentStyle.getFillAlpha());
+					}
+
 					if (currStyle.getFontColor().equals(""))
 					{
 						currStyle.setFontColor(parentStyle.getFontColor());
@@ -1795,6 +1839,20 @@ public class Svg2Xml
 		if (s != "")
 		{
 			element.setAttribute("opacity", s);
+		}
+
+		s = style.getStrokeAlpha();
+
+		if (s != "")
+		{
+			element.setAttribute("stroke-opacity", s);
+		}
+
+		s = style.getFillAlpha();
+
+		if (s != "")
+		{
+			element.setAttribute("fill-opacity", s);
 		}
 
 		//TODO make sure <tspan> is handled correctly

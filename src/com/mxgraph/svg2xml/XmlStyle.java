@@ -19,6 +19,8 @@ public class XmlStyle
 	private String dashPattern = "";
 	private String dashed = "";
 	private String alpha = "";
+	private String strokeAlpha = "";
+	private String fillAlpha = "";
 	private String fontColor = "";
 	private String isFontStyleBold = "";
 	private String isFontStyleItalic = "";
@@ -182,11 +184,37 @@ public class XmlStyle
 		return alpha;
 	}
 	
+	public String getStrokeAlpha() 
+	{
+		return strokeAlpha;
+	}
+	
+	public String getFillAlpha() 
+	{
+		return fillAlpha;
+	}
+	
 	public void setAlpha(String alpha) 
 	{
 		if(alpha != null)
 		{
 			this.alpha = alpha;
+		}
+	}
+	
+	public void setStrokeAlpha(String alpha) 
+	{
+		if(alpha != null)
+		{
+			this.strokeAlpha = alpha;
+		}
+	}
+
+	public void setFillAlpha(String alpha) 
+	{
+		if(alpha != null)
+		{
+			this.fillAlpha = alpha;
 		}
 	}
 	
