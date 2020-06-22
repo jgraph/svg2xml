@@ -63,7 +63,9 @@ public class Svg2Xml
 	private XmlConfig destConfigDoc = null;
 
 	//user identifier, mxGraph is default, but every user should come up with his own identifier, to avoid conflicts with mxGraph standard stencils and shapes
-	private final String stencilUserMarker = "mxGraph";
+	private final String stencilUserMarker = "mxgraph";
+	
+	private String sourceFolder = "";
 
 	public Svg2Xml(Svg2XmlGui gui)
 	{
@@ -547,18 +549,9 @@ public class Svg2Xml
 					// if new group then we save the old file and open a new one
 					String groupName = stencilUserMarker;
 					File currFile = new File(gui.sourceFiles[i].getAbsolutePath());
-					ArrayList <String> folders = new ArrayList <String>();
-
-					while (!currFile.getParentFile().getName().equals("svgroot") && currFile.getParent().length() > 4)
-					{
-						currFile = currFile.getParentFile();
-						folders.add(0, currFile.getName());
-					}
-
-					for (int j = 0; j < folders.size(); j++)
-					{
-						groupName += "." + folders.get(j);
-					}
+					sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
+					groupName += "." + currFile.getParent().replace(sourceFolder + File.separator, "");
+					groupName = groupName.replace(File.separator, ".");
 
 					groupXml = "<shapes name=\"" + groupName + "\">" + System.getProperty("line.separator");
 					String tmp = Svg2Xml.printDocumentString(destDoc, groupBaos);
@@ -592,7 +585,6 @@ public class Svg2Xml
 						writer.write(groupXml);
 						writer.close();
 
-//						JOptionPane.showMessageDialog(gui.getFrame(), "Conversion completed.\nThe library is genereted in:\n" + myDestRoot);
 						if (!destPaths.contains(myDestRoot))
 						{
 							destPaths.add(myDestRoot);
