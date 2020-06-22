@@ -127,7 +127,7 @@ public class Svg2XmlGui implements ActionListener{
 		destinationPanel.add(destinationComponent);
 
 		calculateBorderComponent = new JCheckBox("Calculate border (or read from SVG)", calculateBorder);
-		groupStencilsComponent = new JCheckBox("(TODO)Group stencils (or each in a separate file)", groupStencils);
+		groupStencilsComponent = new JCheckBox("TODO", groupStencils); //Group stencils (or each in a separate file)
 
 		JPanel relScalePanel = new JPanel();
 		useRelScaleComponent = new JRadioButton("Use relative scaling (dest/src):", relativeScaling);
@@ -136,7 +136,7 @@ public class Svg2XmlGui implements ActionListener{
 		relScalePanel.add(relScaleComponent);
 
 		JPanel absScalePanel = new JPanel();
-		useAbsScaleComponent = new JRadioButton("(TODO)Use absolute scaling:", !relativeScaling);
+		useAbsScaleComponent = new JRadioButton("TODO", !relativeScaling); //Use absolute scaling
 		JLabel absScaleLabel1 = new JLabel("x:");
 		absXScaleComponent = new JTextField(Double.toString(absoluteScalingX), 4);
 		JLabel absScaleLabel2 = new JLabel("px   y:");
@@ -162,8 +162,8 @@ public class Svg2XmlGui implements ActionListener{
 		roundPanel.add(roundDecimalNumComponent);
 		roundPanel.add(decimalLabel1);
 
-		overrideLocalConfigComponent = new JCheckBox("(TODO)Override local config", true);
-		keepLogComponent = new JCheckBox("(TODO)Keep log", true);
+		overrideLocalConfigComponent = new JCheckBox("TODO", true); //Override local config
+		keepLogComponent = new JCheckBox("TODO", true); //Logging
 
 		filePanel.add(BorderLayout.CENTER, sourcePanel);
 		filePanel.add(BorderLayout.CENTER, destinationPanel);
