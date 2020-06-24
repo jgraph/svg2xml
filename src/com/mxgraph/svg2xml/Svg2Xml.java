@@ -103,6 +103,7 @@ public class Svg2Xml
 		String groupName = stencilUserMarker;
 		sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
 		boolean isGroupNameInConfig = false;
+		String lastGroupName = "";
 
 		// construct destConfigDoc based on default values, groupConfigDoc and stencilConfigDoc
 		for (int i = 0; i < gui.sourceFiles.length; i++)
@@ -112,7 +113,7 @@ public class Svg2Xml
 			isNewGroup = true;
 
 			groupName = stencilUserMarker;
-
+			
 			String shapeName = gui.sourceFiles[i].getName();
 			shapeName = shapeName.substring(0, shapeName.lastIndexOf("."));
 			int configCount = 0;
@@ -567,6 +568,7 @@ public class Svg2Xml
 						groupName = groupName.replace(File.separator, ".");
 					}
 
+					lastGroupName = groupName;
 					groupXml = "<shapes name=\"" + groupName + "\">" + System.getProperty("line.separator");
 					String tmp = Svg2Xml.printDocumentString(destDoc, groupBaos);
 					tmp = tmp.replaceAll("\\.0\"", "\"");
@@ -587,8 +589,8 @@ public class Svg2Xml
 
 					try
 					{
-						String currentDestPath = gui.destPath.getAbsolutePath();
-						currentDestPath += gui.sourceFiles[i].getParent().substring(2, gui.sourceFiles[i].getParent().length()) + ".xml";
+						String currentDestPath = gui.destPath.getAbsolutePath() + File.separator + lastGroupName.replace(".", File.separator) + ".xml";
+						
 						currentDestPath = currentDestPath.toLowerCase();
 						currentDestPath = currentDestPath.replaceAll("\\s", "_");
 						File myDestFile = new File(currentDestPath);
