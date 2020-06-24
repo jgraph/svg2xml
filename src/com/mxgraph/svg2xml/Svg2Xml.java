@@ -823,7 +823,39 @@ public class Svg2Xml
 			if (!fontSizeStr.equals(""))
 			{
 				fontSizeStr = removeUnits(fontSizeStr);
-				double fs = Double.parseDouble(fontSizeStr) * configDoc.getRelativeScalingRatio();
+				double fs = 16;
+				
+				if (isNumeric(fontSizeStr))
+				{
+					fs = Double.parseDouble(fontSizeStr) * configDoc.getRelativeScalingRatio();
+				}
+				else
+				{
+					switch (fontSizeStr) 
+					{
+						case "xx-small":
+							fs = 9;
+							break;
+						case "x-small":
+							fs = 10;
+							break;
+						case "small":
+							fs = 13;
+							break;
+						case "medium":
+							fs = 16;
+							break;
+						case "large":
+							fs = 18;
+							break;
+						case "x-large":
+							fs = 24;
+							break;
+						case "xx-large":
+							fs = 32;
+					}
+					
+				}
 				el.setAttribute("size", Double.toString(fs));
 				node.appendChild(el);
 			}
@@ -2530,6 +2562,10 @@ public class Svg2Xml
 		}
 
 		return svgDoc;
+	}
+	
+	public static boolean isNumeric(String str) {
+		  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
 	}
 };
 
