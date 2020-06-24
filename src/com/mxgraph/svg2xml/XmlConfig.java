@@ -47,6 +47,10 @@ public class XmlConfig
 	//round to decimals (used with roundCoords=true)
 	private int decimalsToRound = 2;
 	
+	//NOTE: do not set groupName here, since it is read from the groups config file. add an entry such as "groupname: yourgroupname;" without the quotations to your groups XML (config file)
+	//if null, group name is generated from Svg2xml.stencilUserMarker and folder structure
+	private String groupName = null;
+	
 	private Connection connection;
 	private XmlStyle style;
 
@@ -266,5 +270,13 @@ public class XmlConfig
 	public void setStencilBoundsMinY(double stencilBoundsMinY)
 	{
 		this.stencilBoundsMinY = stencilBoundsMinY;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 }

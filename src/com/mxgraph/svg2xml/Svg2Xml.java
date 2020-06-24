@@ -100,13 +100,18 @@ public class Svg2Xml
 		boolean isNewGroup = true;
 		String groupXml = new String();
 		ByteArrayOutputStream groupBaos = new ByteArrayOutputStream(); 
+		String groupName = stencilUserMarker;
+		sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
+		boolean isGroupNameInConfig = false;
 
 		// construct destConfigDoc based on default values, groupConfigDoc and stencilConfigDoc
 		for (int i = 0; i < gui.sourceFiles.length; i++)
 		{
 			groupBaos = new ByteArrayOutputStream(); 
 			isLastInGroup = false;
-			isNewGroup = false;
+			isNewGroup = true;
+
+			groupName = stencilUserMarker;
 
 			String shapeName = gui.sourceFiles[i].getName();
 			shapeName = shapeName.substring(0, shapeName.lastIndexOf("."));
@@ -175,6 +180,11 @@ public class Svg2Xml
 						destConfigDoc.setAspect(aspectType.VARIABLE);
 					}
 
+					if (groupConfigRootElement.getAttribute("groupname") != null && groupConfigRootElement.getAttribute("groupname") != "")
+					{
+						groupName = groupConfigRootElement.getAttribute("groupname");
+						isGroupNameInConfig = true;
+					}
 					//TODO implement strokewidth reading
 					//					strokeWidth = groupConfigRootElement.getAttribute("strokewidth");
 					groupConnection = getConstraintsFromXml(groupConfigString);
@@ -510,7 +520,7 @@ public class Svg2Xml
 					String currParent = gui.sourceFiles[i].getParent();
 					String oldParent = gui.sourceFiles[i-1].getParent();
 
-					if(currParent.equals(oldParent))
+					if(currParent.equals(oldParent) && i!=0)
 					{
 						isNewGroup = false;
 					}
@@ -544,14 +554,18 @@ public class Svg2Xml
 				String currentPath = gui.sourceFiles[i].getAbsolutePath();
 				currentPath = currentPath.substring(2, currentPath.lastIndexOf("."));
 
+				File currFile = new File(gui.sourceFiles[i].getAbsolutePath());
+				
 				if (isNewGroup)
 				{
-					// if new group then we save the old file and open a new one
-					String groupName = stencilUserMarker;
-					File currFile = new File(gui.sourceFiles[i].getAbsolutePath());
-					sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
-					groupName += "." + currFile.getParent().replace(sourceFolder + File.separator, "");
-					groupName = groupName.replace(File.separator, ".");
+					//if group name wasn't in config, we generate it based on folder structure
+					if (!isGroupNameInConfig)
+					{
+						String fullStr = groupName + "." + currFile.getParent();
+						String srcStr = sourceFolder + File.separator;
+						groupName = fullStr.replace(srcStr, "");
+						groupName = groupName.replace(File.separator, ".");
+					}
 
 					groupXml = "<shapes name=\"" + groupName + "\">" + System.getProperty("line.separator");
 					String tmp = Svg2Xml.printDocumentString(destDoc, groupBaos);
