@@ -100,7 +100,10 @@ public class mxPathParser
 					break;
 				case 'z':
 				case 'Z':
-					closePath();
+					if (Character.toLowerCase(prevPathType) != 'z')
+					{
+						closePath();
+					}
 					break;
 				case 'm':
 					movetoRel(currPathString);
@@ -168,6 +171,8 @@ public class mxPathParser
 			{
 				svgPath = svgPath.substring(nextPartStartIndex, svgPath.length());
 			}
+			
+			prevPathType = currPathType;
 		} 
 		while (svgPath.length() > 0);
 
