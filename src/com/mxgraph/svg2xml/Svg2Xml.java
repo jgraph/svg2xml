@@ -101,7 +101,27 @@ public class Svg2Xml
 		String groupXml = new String();
 		ByteArrayOutputStream groupBaos = new ByteArrayOutputStream(); 
 		String groupName = stencilUserMarker;
-		sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
+		boolean areFiles = false;
+		
+		//checks if files are selected too, or only folders
+		for (int i = 0; i < gui.sourceFileListComponent.getSelectedFiles().length; i++)
+		{
+			if (gui.sourceFileListComponent.getSelectedFiles()[i].isFile())
+			{
+				areFiles = true;
+			}
+		}
+		
+		//if files are selected too, the parent folder is the root of the group naming
+		if (areFiles)
+		{
+			sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParentFile().getParent();
+		}
+		else
+		{
+			sourceFolder = gui.sourceFileListComponent.getSelectedFiles()[0].getParent();
+		}
+		
 		boolean isGroupNameInConfig = false;
 		String lastGroupName = "";
 
@@ -531,7 +551,7 @@ public class Svg2Xml
 					}
 				}
 
-				//check if this is the last file in the group
+				//if this is the last file in the group
 				if (i + 1 == gui.sourceFiles.length)
 				{
 					isLastInGroup = true;
@@ -551,7 +571,7 @@ public class Svg2Xml
 					}
 				}
 
-				// here we need some group naming check
+				// group naming check
 				String currentPath = gui.sourceFiles[i].getAbsolutePath();
 				currentPath = currentPath.substring(2, currentPath.lastIndexOf("."));
 
@@ -559,13 +579,14 @@ public class Svg2Xml
 				
 				if (isNewGroup)
 				{
-					//if group name wasn't in config, we generate it based on folder structure
+					//if group name wasn't in config, generate it based on folder structure
 					if (!isGroupNameInConfig)
 					{
-						String fullStr = groupName + "." + currFile.getParent();
-						String srcStr = sourceFolder + File.separator;
-						groupName = fullStr.replace(srcStr, "");
-						groupName = groupName.replace(File.separator, ".");
+						String fullStr = currFile.getParent().toLowerCase();
+						String currName = fullStr.replace(sourceFolder.toLowerCase(), "");
+						currName = currName.replace(File.separator, ".");
+						
+						groupName = stencilUserMarker + currName;
 					}
 
 					lastGroupName = groupName;
@@ -576,7 +597,7 @@ public class Svg2Xml
 				}
 				else
 				{
-					// if not a new group then we just add the xml to the group xml
+					// if not a new group, just add the xml to the group xml
 					groupXml += Svg2Xml.printDocumentString(destDoc, groupBaos);
 				}
 
