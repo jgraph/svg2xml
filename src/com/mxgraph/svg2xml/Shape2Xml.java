@@ -50,6 +50,11 @@ public class Shape2Xml
 	{
 		double s = configDoc.getRelativeScalingRatio();
 		
+		if (!configDoc.isRelativeScaling())
+		{
+			s = Math.min(configDoc.getAbsoluteScalingX() / configDoc.getStencilBoundsX(), configDoc.getAbsoluteScalingY() / configDoc.getStencilBoundsY());
+		}
+		
 		if (element.getNodeName().equals("rect"))
 		{
 			if (element.getAttribute("transform") != null && !element.getAttribute("transform").equals(""))

@@ -49,7 +49,7 @@ public class Svg2XmlGui implements ActionListener{
 	protected boolean roundCoords=true;
 	
 	//round to decimals (used with roundCoords=true)
-	protected int decimalsToRound=2;
+	protected int decimalsToRound=3;
 	
 	//i'm not yet sure about the exact functionality of this
 	protected boolean overrideLocalConfig=false; //TODO make use of this var
@@ -136,7 +136,7 @@ public class Svg2XmlGui implements ActionListener{
 		relScalePanel.add(relScaleComponent);
 
 		JPanel absScalePanel = new JPanel();
-		useAbsScaleComponent = new JRadioButton("TODO", !relativeScaling); //Use absolute scaling
+		useAbsScaleComponent = new JRadioButton("Normalize size to:", !relativeScaling); //Use absolute scaling
 		JLabel absScaleLabel1 = new JLabel("x:");
 		absXScaleComponent = new JTextField(Double.toString(absoluteScalingX), 4);
 		JLabel absScaleLabel2 = new JLabel("px   y:");
@@ -156,7 +156,7 @@ public class Svg2XmlGui implements ActionListener{
 
 		JPanel roundPanel = new JPanel();
 		roundCoordinatesComponent = new JCheckBox("Round coordinates to ", roundCoords);
-		roundDecimalNumComponent = new JTextField("2", 4);
+		roundDecimalNumComponent = new JTextField("3", 4);
 		JLabel decimalLabel1 = new JLabel("decimals");
 		roundPanel.add(roundCoordinatesComponent);
 		roundPanel.add(roundDecimalNumComponent);

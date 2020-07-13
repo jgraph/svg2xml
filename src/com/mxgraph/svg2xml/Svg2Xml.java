@@ -336,11 +336,11 @@ public class Svg2Xml
 				Constraint currConstraint = constraints.get(j);
 				
 				double x = currConstraint.getX() - bounds.getMinX();
-				x = Math.round(x * 100.0 / bounds.getWidth()) / 100.0;
+				x = Math.round(x * 1000.0 / bounds.getWidth()) / 1000.0;
 				currConstraint.setX(x);
 
 				double y = currConstraint.getY() - bounds.getMinY();
-				y = Math.round(y * 100.0 / bounds.getHeight()) / 100.0;
+				y = Math.round(y * 1000.0 / bounds.getHeight()) / 1000.0;
 				currConstraint.setY(y);
 			}
 			
@@ -2252,8 +2252,16 @@ public class Svg2Xml
 
 		if (destConfigDoc.isCalculateBorder())
 		{
-			double w = destConfigDoc.getStencilBoundsX() * s;
-			double h = destConfigDoc.getStencilBoundsY() * s;
+			double w = Math.round(destConfigDoc.getStencilBoundsX() * s * 1000.0) / 1000.0;
+			double h = Math.round(destConfigDoc.getStencilBoundsY() * s * 1000.0) / 1000.0;
+			
+			if (!destConfigDoc.isRelativeScaling())
+			{
+				double sc = Math.min(destConfigDoc.getAbsoluteScalingX() / destConfigDoc.getStencilBoundsX(), destConfigDoc.getAbsoluteScalingY() / destConfigDoc.getStencilBoundsY());
+				w = Math.round(destConfigDoc.getStencilBoundsX() * sc * 1000.0) / 1000.0;
+				h = Math.round(destConfigDoc.getStencilBoundsY() * sc * 1000.0) / 1000.0;
+			}
+			
 			root.setAttribute("w", String.valueOf(w));
 			root.setAttribute("h", String.valueOf(h));
 		}
