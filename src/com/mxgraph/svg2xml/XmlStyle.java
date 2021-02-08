@@ -109,6 +109,14 @@ public class XmlStyle
 	{
 		if(strokeWidth != null)
 		{
+			strokeWidth = strokeWidth.replaceAll("mm", "");
+			strokeWidth = strokeWidth.replaceAll("pc", "");
+			strokeWidth = strokeWidth.replaceAll("pt", "");
+			strokeWidth = strokeWidth.replaceAll("in", "");
+			strokeWidth = strokeWidth.replaceAll("cm", "");
+			strokeWidth = strokeWidth.replaceAll("px", "");
+			strokeWidth = strokeWidth.replaceAll("%", "");
+			strokeWidth = strokeWidth.replaceAll("\\s","");
 			this.strokeWidth = strokeWidth;
 		}
 	}
