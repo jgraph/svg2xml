@@ -73,6 +73,7 @@ public class mxPathParser
 				hasLetter = false;
 			}
 			
+			svgPath = svgPath.replaceAll("\\s{2,}", " ");
 			nextPartStartIndex = Shape2Xml.nextPartIndex(svgPath, currPathType);
 			
 			String currPathString = "";

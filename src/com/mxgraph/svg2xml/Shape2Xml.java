@@ -1541,7 +1541,7 @@ public class Shape2Xml
 		int currIndex=0;
 		int currParamIndex = 0;
 
-		if (pathString.charAt(1) != ' ')
+		if (pathString.length() >= 2 && pathString.charAt(1) != ' ')
 		{
 			pathString = pathString.substring(0, 1) + " " + pathString.substring(1, pathString.length());
 		}
@@ -1559,9 +1559,33 @@ public class Shape2Xml
 			endIndex = pathString.length();
 		}
 
-		String paramString = pathString.substring(currParamIndex, endIndex);
+		double param;
+		
+		if (pathString.charAt(0) == 'L')
+		{
+			
+			String paramString = pathString.substring(currParamIndex, endIndex);
 
-		double param = Double.valueOf(paramString);
+			param = Double.valueOf(paramString);
+			
+		}
+		else if (pathString != null && pathString != "" && pathString.length() > 1)
+		{
+			if (pathString == null)
+			{
+				int i =1;
+				i++;
+			}
+			
+			String paramString = pathString.substring(currParamIndex, endIndex);
+
+			param = Double.valueOf(paramString);
+			
+		}
+		else
+		{
+			param = 0;
+		}
 
 		return param;
 	}
