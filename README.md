@@ -18,6 +18,9 @@ Run
 
 `java -classpath lib/mxgraph-core.jar:classes com.mxgraph.svg2xml.Svg2XmlGui`
 
+On Windows 
+`java -cp classes;lib/mxgraph-core.jar com.mxgraph.svg2xml.Svg2XmlGui`
+
 
 Quick start quide
 =================
